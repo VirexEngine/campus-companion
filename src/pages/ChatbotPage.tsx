@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Bot, User, Sparkles, Mic, MicOff, Volume2, VolumeX } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { apiFetch } from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
 import { toast } from 'sonner';
@@ -33,7 +34,7 @@ export default function ChatbotPage() {
     {
       id: '0',
       role: 'assistant',
-      content: "Hi! I'm Campus AI 🎓 — loading your knowledge base...",
+      content: "Hi! I'm Campus Companion AI 🎓 — ready to help with campus tools, student services, and smart answers.",
       timestamp: new Date(),
     },
   ]);
@@ -138,11 +139,9 @@ export default function ChatbotPage() {
       const apiMessages = [
         { 
           role: 'system', 
-          content: `You are Campus AI, an elite, universal intellectual powerhouse. 
-                    Your primary directive is to PROVIDE SUMMARIZED, SHORT, AND CONCISE ANSWERS. 
-                    Do not give long-winded explanations. Get straight to the point.
-                    You have the power to talk about any field—science, history, technology, or life—brilliantly, but ALWAYS keep it brief and high-impact. 
-                    Use perfect markdown formatting.`
+          content: `You are Campus Companion AI, a friendly and powerful assistant. 
+                    Provide short, precise answers for campus workflows, academic tools, student services, and general knowledge. 
+                    Keep responses concise, useful, and easy to read. Use markdown only when it improves clarity.`
         },
         ...messages.slice(-5).map(m => ({ role: m.role, content: m.content })),
         { role: 'user', content: text }

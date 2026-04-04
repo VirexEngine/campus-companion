@@ -117,7 +117,7 @@
     --shadow-glow: 0 0 20px hsl(174 62% 48% / 0.2);
   }
 
-  /* Scoped Theme for Campus HuB (Landing Page) */
+  /* Scoped Theme for Campus Companion */
   .theme-campus-hub {
     --primary: 262 52% 25%;
     --primary-foreground: 0 0% 100%;

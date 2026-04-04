@@ -35,9 +35,9 @@
 
 ## 🎯 Overview
 
-Campus Companion is a comprehensive digital hub designed specifically for educational institutions. It provides an integrated platform for students, teachers, and administrators to manage academic activities, track performance, collaborate seamlessly, and leverage AI-powered tools for enhanced learning experiences.
+Campus Companion is a comprehensive digital hub designed specifically for educational institutions and campus networks. It provides an integrated platform for students, teachers, and administrators to manage academic activities, track performance, collaborate seamlessly, and leverage AI-powered tools for enhanced learning experiences.
 
-Whether you're a student tracking attendance and taking AI-generated quizzes, a teacher creating dynamic learning materials, or an administrator overseeing institutional operations—Campus Companion has you covered.
+Built as a flexible, multi-institution solution, Campus Companion can be adapted to different schools, colleges, and campus ecosystems. Whether you're a student tracking attendance and taking AI-generated quizzes, a teacher creating dynamic learning materials, or an administrator overseeing campus operations—Campus Companion has you covered.
 
 ### 🌟 Highlights
 
@@ -91,7 +91,7 @@ Whether you're a student tracking attendance and taking AI-generated quizzes, a 
 
 ### 🤖 AI & Intelligent Features
 
-- **Intelligent Chatbot**: Campus-aware assistant using semantic search with knowledge base integration
+- **Intelligent Chatbot**: Universal campus AI assistant that can answer campus workflows, student support, and general knowledge questions
 - **AI Quiz Generation**: Automatic quiz creation from educational PDF materials
 - **Facial Biometrics**: Secure login with face recognition technology
 - **Smart Notifications**: Context-aware alerts and announcements

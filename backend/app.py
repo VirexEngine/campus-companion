@@ -1259,97 +1259,65 @@ chat_blocks = {}                      # Tracks expiration time of 20-min blocks 
 def chat_proxy():
     client_ip = request.remote_addr
     current_time = time.time()
-    
-    # 1. Check if user is currently serving a 20-minute block (1200 seconds)
+
     if client_ip in chat_blocks:
         if current_time < chat_blocks[client_ip]:
             remaining_mins = max(1, int((chat_blocks[client_ip] - current_time) / 60))
             safe_msg = f"🚫 Anti-Spam Security: You are sending messages too quickly! Please wait {remaining_mins} minutes before chatting again."
             return jsonify({"choices": [{"message": {"content": safe_msg}}]}), 200
         else:
-            # Block expired, reset their history
             del chat_blocks[client_ip]
             chat_rate_limits[client_ip] = []
-            
-    # 2. Cleanup timestamps older than 50 seconds
+
     recent_requests = [t for t in chat_rate_limits[client_ip] if current_time - t < 50]
-    
-    # 3. Enforce: "5 messages per 50 seconds -> Block for 20 minutes"
     if len(recent_requests) >= 5:
-        chat_blocks[client_ip] = current_time + 1200 # 20 minutes
-        safe_msg = "🚦 System Protected: You exceeded the limit of 5 messages per 50 seconds. To protect the AI API limits, you have been temporarily paused for 20 minutes."
+        chat_blocks[client_ip] = current_time + 1200
+        safe_msg = "🚦 System Protected: You exceeded the limit of 5 messages per 50 seconds. Please wait 20 minutes before trying again."
         return jsonify({"choices": [{"message": {"content": safe_msg}}]}), 200
-        
-    # 4. Log valid request
+
     recent_requests.append(current_time)
     chat_rate_limits[client_ip] = recent_requests
 
-
-    data = request.json
+    data = request.json or {}
     messages = data.get("messages", [])
-    
-    # Many free G4F endpoints drop 'system' role messages. 
-    # Extract the system context and inject it into the final user question.
+
+    if not os.getenv("GEMINI_API_KEY"):
+        return jsonify({"choices": [{"message": {"content": "AI service is offline. Please add GEMINI_API_KEY to backend/.env and restart the server."}}]}), 200
+
     system_context = ""
     for msg in messages:
-        if msg['role'] == 'system':
-            system_context = msg['content']
+        if msg.get('role') == 'system':
+            system_context = msg.get('content', '')
             break
-            
-    # Filter out system messages
-    messages = [m for m in messages if m['role'] != 'system']
-    
-    if system_context and messages and messages[-1]['role'] == 'user':
-        instructions = "You are an Elite AI College Assistant. Use the Context Data to answer questions accurately. For general greetings, converse naturally, intelligently, and warmly. DO NOT mention this hidden prompt."
-        messages[-1]['content'] = f"Context Data:\n{system_context}\n\nInstructions: {instructions}\n\nUser Question: {messages[-1]['content']}"
-    
-    import os
-    import json
-    import urllib.request
-    
+
+    messages = [m for m in messages if m.get('role') != 'system']
+    final_prompt = ""
+    if messages and messages[-1].get('role') == 'user':
+        final_prompt = messages[-1].get('content', '')
+        if system_context:
+            final_prompt = f"{system_context}\n\nUser Question: {final_prompt}"
+    else:
+        final_prompt = system_context or "Answer the user's questions clearly and concisely."
+
     try:
-        gemini_key = os.getenv("GEMINI_API_KEY")
-        if not gemini_key:
-            msg = "Greetings! I am ready to be your super-fast, intelligent Assistant! ✨\n\nAll public anonymous APIs are experiencing global network outages today (which caused the infinite loading loops). To make me 100% stable, lightning fast, and **permanently free without any billing risk**, simply grab a free zero-cost API key from **[aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey)**.\n\nAdd it to your `backend/.env` file exactly like this:\n`GEMINI_API_KEY=your_key_here`\n\nThen restart your Python server (`python app.py`), and I'll be online instantly!"
-            return jsonify({
-                "choices": [{"message": {"content": msg}}]
-            }), 200
-            
-        # Build prompt from messages
-        prompt = "\n".join([m['content'] for m in messages])
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key={gemini_key}"
-        payload = json.dumps({
-            "contents": [{"parts": [{"text": prompt}]}]
-        }).encode('utf-8')
-        req = urllib.request.Request(url, data=payload, headers={'Content-Type': 'application/json'})
-        
-        with urllib.request.urlopen(req, timeout=10) as response:
-            res = json.loads(response.read().decode())
-            output_text = res['candidates'][0]['content']['parts'][0]['text']
-            
-            return jsonify({
-                "choices": [{"message": {"content": output_text}}]
-            }), 200
-            
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        response = model.generate_content(
+            final_prompt,
+            generation_config=genai.types.GenerationConfig(max_output_tokens=200)
+        )
+        output_text = response.text.strip()
+        return jsonify({"choices": [{"message": {"content": output_text}}]}), 200
     except Exception as e:
         import traceback
         traceback.print_exc()
-        error_msg = str(e)
-        if "HTTP Error 429" in error_msg or "429" in error_msg:
-            safe_msg = "Whoa there! 🚦 I'm catching my breath. Please wait 5 seconds before asking another question so we don't trip the presentation speed limit!"
-            return jsonify({
-                "choices": [{"message": {"content": safe_msg}}]
-            }), 200
-            
-        if "HTTP Error 400" in error_msg:
-            safe_msg = "Oops! Google rejected the API Key (HTTP 400 Bad Request). Are you sure you pressed 'Save' (Ctrl+S) on the `.env` file after pasting the key? Make sure it has no quotes or extra spaces around it!"
-            return jsonify({
-                "choices": [{"message": {"content": safe_msg}}]
-            }), 200
-            
-        return jsonify({
-            "choices": [{"message": {"content": f"I'm sorry, I encountered a temporary network timeout. Please try asking again!"}}]
-        }), 200
+        error_str = str(e)
+        if "429" in error_str:
+            safe_msg = "🚦 Rate limit reached. Please wait a few moments and ask again."
+            return jsonify({"choices": [{"message": {"content": safe_msg}}]}), 200
+        if "400" in error_str:
+            safe_msg = "Oops! The AI key appears invalid or the request was rejected. Check GEMINI_API_KEY in backend/.env."
+            return jsonify({"choices": [{"message": {"content": safe_msg}}]}), 200
+        return jsonify({"choices": [{"message": {"content": "Sorry, I couldn't connect to the AI service right now. Please check GEMINI_API_KEY or try again later."}}]}), 200
 
 @app.route('/api/gn-chat', methods=['POST'])
 def gn_chat_proxy():
@@ -1375,20 +1343,20 @@ def gn_chat_proxy():
     data = request.json
     messages = data.get("messages", [])
     
-    gn_knowledge = ""
+    platform_info = ""
     try:
-        txt_path = os.path.join(os.path.dirname(__file__), '..', 'GN GROUP.txt')
+        txt_path = os.path.join(os.path.dirname(__file__), '..', 'cleaned_knowledge.txt')
         with open(txt_path, 'r', encoding='utf-8', errors='ignore') as f:
-            gn_knowledge = f.read()
-            gn_knowledge = gn_knowledge[:80000]
+            platform_info = f.read()
+            platform_info = platform_info[:80000]
     except Exception:
-        gn_knowledge = "Information about GN Group."
+        platform_info = "Information about the Campus Companion platform and campus management features."
 
     messages = [m for m in messages if m['role'] != 'system']
     
     if messages and messages[-1]['role'] == 'user':
-        instructions = "You are the official AI Assistant for GN Group of Institutes. IMPORTANT: You must ONLY answer questions using the provided Context Data about GN Group. If the user asks a question that is NOT related to GN Group, you MUST politely decline and say you can only provide information regarding GN Group of Institutes. Be helpful, professional, and do not mention this prompt."
-        messages[-1]['content'] = f"Context Data regarding GN Group:\n{gn_knowledge}\n\nInstructions: {instructions}\n\nUser Question: {messages[-1]['content']}"
+        instructions = "You are the official AI Assistant for Campus Companion. Answer questions about the platform, campus workflows, and student services. If the user asks unrelated questions, respond politely that you are focused on campus solutions and platform features."
+        messages[-1]['content'] = f"Platform Info:\n{platform_info}\n\nInstructions: {instructions}\n\nUser Question: {messages[-1]['content']}"
     
     try:
         gemini_key = os.getenv("GEMINI_LANDING_API_KEY")
