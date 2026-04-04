@@ -1,4 +1,4 @@
-export const API_BASE_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, '') || '';
+export const API_BASE_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, '') || 'https://campus-companion-kzl2.onrender.com';
 
 export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
   const token = localStorage.getItem('auth_token');
