@@ -31,18 +31,26 @@ def handle_preflight():
     if request.method == "OPTIONS":
         response = app.make_default_options_response()
         headers = response.headers
+        origin = request.headers.get("Origin", "*")
 
-        headers["Access-Control-Allow-Origin"] = "*"
-        headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+        headers["Access-Control-Allow-Origin"] = origin
+        headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, PATCH, DELETE, OPTIONS"
         headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+        if origin != "*":
+            headers["Access-Control-Allow-Credentials"] = "true"
         return response
 
 # ✅ Force headers on every response
 @app.after_request
 def after_request(response):
-    response.headers["Access-Control-Allow-Origin"] = "*"
+    origin = request.headers.get("Origin")
+    if origin:
+        response.headers["Access-Control-Allow-Origin"] = origin
+        response.headers["Access-Control-Allow-Credentials"] = "true"
+    else:
+        response.headers["Access-Control-Allow-Origin"] = "*"
     response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
-    response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, PATCH, DELETE, OPTIONS"
     return response
 
 jwt = JWTManager(app)
@@ -372,8 +380,11 @@ def assign_default_subjects(cur, user_id, name, department, role, chosen_subject
 # AUTHENTICATION
 # =========================================================
 
-@app.route('/api/signup', methods=['POST'])
+@app.route('/api/signup', methods=['POST', 'OPTIONS'])
 def signup():
+    if request.method == 'OPTIONS':
+        return app.make_default_options_response()
+
     data = request.json
     name = data.get('name')
     email = data.get('email')
@@ -410,8 +421,11 @@ def signup():
     conn.close()
     return jsonify({'message': 'User created successfully', 'user_id': user_id}), 201
 
-@app.route('/api/login', methods=['POST'])
+@app.route('/api/login', methods=['POST', 'OPTIONS'])
 def login():
+    if request.method == 'OPTIONS':
+        return app.make_default_options_response()
+
     data = request.json
     user_id = data.get('user_id')
     password = data.get('password')
@@ -461,8 +475,11 @@ def get_face_descriptor(user_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/login/face', methods=['POST'])
+@app.route('/api/login/face', methods=['POST', 'OPTIONS'])
 def login_face():
+    if request.method == 'OPTIONS':
+        return app.make_default_options_response()
+
     data = request.json
     user_id = data.get('user_id')
     print(f"DEBUG: Face Login attempt for user_id='{user_id}'")
