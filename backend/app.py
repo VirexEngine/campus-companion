@@ -1729,8 +1729,11 @@ RESPONSE STYLE: 1-2 short sentences maximum. Be surgical and direct. No fluff.""
         return jsonify({'choices': [{'message': {'content': 'Request timed out or failed. Please ask about GN Group or Campus HuB features.'}}]})
 
 
+# Ensure database setup runs on import so Gunicorn/Render can initialize the DB correctly.
+init_db_if_needed()
+migrate_db()
+migrate_documents()
+
 if __name__ == '__main__':
-    init_db_if_needed()
-    migrate_db()
-    migrate_documents()
-    app.run(debug=True, port=5001)
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
