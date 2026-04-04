@@ -21,13 +21,7 @@ import google.generativeai as genai
 
 app = Flask(__name__)
 app.config['JWT_SECRET_KEY'] = 'super-secret-key-change-in-prod'
-CORS(app, resources={
-    r"/*": {
-        "origins": [
-            "https://campus-companion-pi.vercel.app"
-        ]
-    }
-})
+CORS(app, supports_credentials=True)
 jwt = JWTManager(app)
 
 @app.route("/")
