@@ -4,3 +4,5 @@ Flask-CORS==4.0.0
 Werkzeug==3.0.1
 google-generativeai
 gunicorn
+PyPDF2
+flask-jwt-extended
