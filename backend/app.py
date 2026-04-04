@@ -1355,7 +1355,7 @@ def gn_chat_proxy():
     messages = [m for m in messages if m['role'] != 'system']
     
     if messages and messages[-1]['role'] == 'user':
-        instructions = "You are the official AI Assistant for Campus Companion. Answer questions about the platform, campus workflows, and student services. If the user asks unrelated questions, respond politely that you are focused on campus solutions and platform features."
+        instructions = "You are the official AI Assistant for Campus Companion. Answer any question clearly and helpfully, including general knowledge and campus-specific requests. You may provide guidance on attendance, individual document vault entries, quiz result details, leaderboard information, and student or teacher workflows. Do not limit your responses to only platform mechanics."
         messages[-1]['content'] = f"Platform Info:\n{platform_info}\n\nInstructions: {instructions}\n\nUser Question: {messages[-1]['content']}"
     
     try:

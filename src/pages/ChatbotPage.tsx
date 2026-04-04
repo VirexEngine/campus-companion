@@ -34,7 +34,7 @@ export default function ChatbotPage() {
     {
       id: '0',
       role: 'assistant',
-      content: "Hi! I'm Campus Companion AI 🎓 — ready to help with campus tools, student services, and smart answers.",
+      content: "Hi! I'm Campus Companion AI 🎓 — ready to help with campus tools, personal attendance, document vaults, quiz results, leaderboard insights, and general knowledge. Click Auto-Speaker to enable voice output.",
       timestamp: new Date(),
     },
   ]);
@@ -44,7 +44,7 @@ export default function ChatbotPage() {
   
   // Speech States
   const [isListening, setIsListening] = useState(false);
-  const [autoSpeak, setAutoSpeak] = useState(true);
+  const [autoSpeak, setAutoSpeak] = useState(false);
   const speechRecognition = useRef<any>(null);
 
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -140,7 +140,8 @@ export default function ChatbotPage() {
         { 
           role: 'system', 
           content: `You are Campus Companion AI, a friendly and powerful assistant. 
-                    Provide short, precise answers for campus workflows, academic tools, student services, and general knowledge. 
+                    Answer any question clearly and accurately, including general knowledge, campus operations, and individual user records. 
+                    You can handle attendance details, document vault files, quiz results, leaderboard status, and personalized academic guidance. 
                     Keep responses concise, useful, and easy to read. Use markdown only when it improves clarity.`
         },
         ...messages.slice(-5).map(m => ({ role: m.role, content: m.content })),

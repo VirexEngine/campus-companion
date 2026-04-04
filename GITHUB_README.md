@@ -65,6 +65,7 @@ Built as a flexible, multi-institution solution, Campus Companion can be adapted
 | **Chatbot** | 24/7 AI assistant with campus knowledge and speech recognition |
 | **Query/Helpdesk** | Submit questions to teachers/admins with reply tracking |
 | **Document Vault** | Secure upload and management of academic documents |
+| **Individual Records** | Ask for personal attendance, quiz results, or leaderboard status as a student |
 | **Notifications** | Real-time alerts for attendance, announcements, and query replies |
 
 ### 👨‍🏫 For Teachers
@@ -74,6 +75,7 @@ Built as a flexible, multi-institution solution, Campus Companion can be adapted
 | **Quiz Generation** | Create intelligent quizzes by uploading PDF materials—powered by Gemini AI |
 | **Student Management** | View assigned students and monitor their performance |
 | **Attendance** | Mark and track student attendance efficiently |
+| **Document Vault** | Access and manage student document vaults with secure teacher uploads and downloads |
 | **Query Response** | Respond to student queries and manage helpdesk tickets |
 | **Analytics** | Track student progress and identify learning gaps |
 | **Subject Management** | Configure and manage assigned subjects and courses |
@@ -480,15 +482,18 @@ Refer to `backend/app.py` for complete endpoint specifications, request/response
 - Uses internal campus and platform context to generate answers
 - Supports speech input and text-based questions
 - Sends requests to Google Gemini API for intelligent responses
-- Returns concise, campus-aware answers
+- Returns concise answers for general queries and individual campus record questions
 
 **Features:**
+- Universal AI answers across all topics, including attendance, document vault records, quiz results, and leaderboard knowledge
 - Natural language understanding
 - Speech recognition input (Web Speech API)
-- Text-to-speech output
+- Voice output available only when Auto-Speaker is enabled
 - Rate limiting (5 messages per 50 seconds)
-- 20-minute cooldown on rate limit violations
 - Web Worker processing to avoid UI blocking
+
+**Voice Control:**
+- Auto-Speaker is off by default. Users must click the Auto-Speaker button to enable audio responses.
 
 **Usage:**
 ```typescript
