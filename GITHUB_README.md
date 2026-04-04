@@ -454,6 +454,7 @@ Refer to `backend/app.py` for complete endpoint specifications, request/response
 - ✅ Generate AI quizzes from PDFs
 - ✅ Mark attendance
 - ✅ Respond to student queries
+- ✅ Upload and manage documents
 - ✅ Manage assigned subjects
 - ✅ View student analytics
 - ❌ Cannot delete users
