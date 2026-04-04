@@ -24,6 +24,10 @@ app.config['JWT_SECRET_KEY'] = 'super-secret-key-change-in-prod'
 CORS(app)
 jwt = JWTManager(app)
 
+@app.route("/")
+def home():
+    return "Campus Companion Backend is Live 🚀"
+
 # Initialize Gemini
 api_key = os.environ.get('GEMINI_API_KEY')
 if api_key:
@@ -1687,7 +1691,7 @@ def delete_document(doc_id):
 
 @app.route('/api/gn-chat', methods=['POST'])
 def gn_chat():
-    """Public chatbot endpoint for the landing page. STRICTLY RESTRICTED to Campus HuB/GN Group info."""
+    """Public chatbot endpoint for the landing page."""
     try:
         if not os.environ.get('GEMINI_API_KEY'):
             return jsonify({'choices': [{'message': {'content': 'AI service unavailable.'}}]})
@@ -1697,33 +1701,36 @@ def gn_chat():
         data = request.json
         messages = data.get('messages', [])
         
-        STRICT_SYSTEM_PROMPT = """ROLE: Official Assistant for GN Group & Campus HuB AI.
+        platform_info = ""
+        try:
+            txt_path = os.path.join(os.path.dirname(__file__), '..', 'cleaned_knowledge.txt')
+            with open(txt_path, 'r', encoding='utf-8', errors='ignore') as f:
+                platform_info = f.read()
+                platform_info = platform_info[:80000]
+        except Exception:
+            platform_info = "Information about the Campus Companion platform and campus management features."
 
-STRICT RULE: You ONLY answer questions about GN Group of Institutes (Greater Noida) OR the Campus HuB AI platform. 
-
-REJECT ALL OTHER TOPICS: If a user asks about anything else (e.g., general knowledge, coding help, other colleges, personal life, news, math, recipes, or "what is AI"), you MUST politely decline. Use this response: "I am strictly focused on providing information about GN Group of Institutes and the Campus HuB AI platform. Please ask me about our courses, features, or admissions."
-
-KNOWLEDGE BASE:
-- INSTITUTION: GN Group (Greater Noida). 20yr legacy. Grade 'A' GGSIPU. Placements up to 50 LPA. 6000+ students. 
-- PROGRAMS: B.Tech (CSE, AI, Data Science), MBA, PGDM, BBA, Law (BA LLB), Pharmacy (B.Pharm).
-- PLATFORM (Campus HuB AI): Biometric Face Login, Voice Assistant, AI Quiz Generator, Document Vault, Attendance, Timetable, Notifications, Leaderboard.
-- TECH: React, Flask, JWT, Gemini 1.5, TensorFlow (Face ID).
-
-RESPONSE STYLE: 1-2 short sentences maximum. Be surgical and direct. No fluff."""
-
-        # Build conversation history
-        full_conversation = STRICT_SYSTEM_PROMPT + "\n\nUser Question: " + (messages[-1]['content'] if messages else "")
+        messages = [m for m in messages if m['role'] != 'system']
         
-        # Using a timeout to prevent hanging
-        response = model.generate_content(
-            full_conversation,
-            generation_config=genai.types.GenerationConfig(max_output_tokens=150)
-        )
-        reply = response.text.strip()
+        if messages and messages[-1]['role'] == 'user':
+            instructions = "You are the official AI Assistant for Campus Companion. Answer any question clearly and helpfully, including general knowledge and campus-specific requests. Provide guidance on attendance, individual document vault entries, quiz result details, leaderboard information, and student or teacher workflows."
+            messages[-1]['content'] = f"Platform Info:\n{platform_info}\n\nInstructions: {instructions}\n\nUser Question: {messages[-1]['content']}"
+            
+        prompt = "\n".join([m['content'] for m in messages])
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key={os.getenv('GEMINI_LANDING_API_KEY')}"
+        import json, urllib.request
+        payload = json.dumps({"contents": [{"parts": [{"text": prompt}]}]}).encode('utf-8')
+        req = urllib.request.Request(url, data=payload, headers={'Content-Type': 'application/json'})
         
-        return jsonify({
-            'choices': [{'message': {'content': reply}}]
-        })
+        with urllib.request.urlopen(req, timeout=10) as response:
+            res = json.loads(response.read().decode())
+            output_text = res['candidates'][0]['content']['parts'][0]['text']
+            return jsonify({"choices": [{"message": {"content": output_text}}]}), 200
+        
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"choices": [{"message": {"content": f"An error occurred: {str(e)}"}}]}), 200
     except Exception as e:
         print(f"DEBUG: GN Chat error: {e}")
         return jsonify({'choices': [{'message': {'content': 'Request timed out or failed. Please ask about GN Group or Campus HuB features.'}}]})
