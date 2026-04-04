@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore, UserRole } from '@/store/authStore';
+import { API_BASE_URL } from '@/lib/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { GraduationCap, Eye, EyeOff, ArrowRight, UserPlus, LogIn, Camera, ShieldCheck, User } from 'lucide-react';
 import { toast } from 'sonner';
@@ -76,7 +77,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       // 1. Fetch user's stored descriptor
-      const userRes = await fetch(`/api/login/face/get-descriptor/${userId}`);
+      const userRes = await fetch(`${API_BASE_URL || ''}/api/login/face/get-descriptor/${userId}`);
       if (!userRes.ok) throw new Error('User not found or Face ID not set up.');
       
       const { face_descriptor: storedDescriptorStr } = await userRes.json();

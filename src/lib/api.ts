@@ -1,3 +1,5 @@
+export const API_BASE_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, '') || '';
+
 export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
   const token = localStorage.getItem('auth_token');
   const headers = {
@@ -6,7 +8,7 @@ export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
     ...options.headers,
   };
 
-  const response = await fetch(`/api${endpoint}`, {
+  const response = await fetch(`${API_BASE_URL || ''}/api${endpoint}`, {
     ...options,
     headers,
   });

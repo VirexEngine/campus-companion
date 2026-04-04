@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/store/authStore';
 import { useAppStore } from '@/store/appStore';
-import { apiFetch } from '@/lib/api';
+import { apiFetch, API_BASE_URL } from '@/lib/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FileUp, Search, BrainCircuit, Play, CheckCircle2, ChevronRight, XCircle, Flame, Trash2, Clock, ShieldAlert } from 'lucide-react';
 import { toast } from 'sonner';
@@ -65,7 +65,7 @@ export default function QuizzesPage() {
       formData.append('timer', String(timerOption));
       
       const token = localStorage.getItem('auth_token');
-      const res = await fetch('/api/teacher/quizzes/generate', {
+      const res = await fetch(`${API_BASE_URL || ''}/api/teacher/quizzes/generate`, {
         method: 'POST',
         headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: formData
@@ -132,6 +132,30 @@ export default function QuizzesPage() {
     queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
   };
 
+  useEffect(() => {
+    if (!activeQuizId || !activeQuizData) return;
+
+    const duration = activeQuizData.quiz?.timer_seconds ?? 30;
+    setTimeLeft(duration);
+
+    if (timerRef.current) clearInterval(timerRef.current);
+
+    timerRef.current = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev === null || prev <= 0) {
+          if (timerRef.current) clearInterval(timerRef.current);
+          handleNextQuestion();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [activeQuizId, activeQuizData, currentQuestionIndex]);
+
 
   if (activeQuizId && activeQuizData) {
     if (quizScore) {
@@ -155,31 +179,6 @@ export default function QuizzesPage() {
         </div>
       );
     }
-
-    // Question Timer Logic
-    useEffect(() => {
-      if (!activeQuizData) return;
-      
-      const duration = activeQuizData.quiz.timer_seconds || 30;
-      setTimeLeft(duration);
-      
-      if (timerRef.current) clearInterval(timerRef.current);
-      
-      timerRef.current = setInterval(() => {
-        setTimeLeft(prev => {
-          if (prev === null || prev <= 0) {
-            clearInterval(timerRef.current!);
-            handleNextQuestion(); // Time's up!
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-
-      return () => {
-        if (timerRef.current) clearInterval(timerRef.current);
-      };
-    }, [currentQuestionIndex, activeQuizId]);
 
     const currentQ: Question = activeQuizData.questions[currentQuestionIndex];
     const totalQs = activeQuizData.questions.length;

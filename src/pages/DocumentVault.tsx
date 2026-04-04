@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
+import { API_BASE_URL } from '@/lib/api';
 
 interface Document {
   id: number;
@@ -33,7 +34,7 @@ const DocumentVault = () => {
   const fetchDocuments = async () => {
     try {
       const token = localStorage.getItem('auth_token');
-      const response = await fetch('/api/documents', {
+      const response = await fetch(`${API_BASE_URL || ''}/api/documents`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -68,7 +69,7 @@ const DocumentVault = () => {
 
     try {
       const token = localStorage.getItem('auth_token');
-      const response = await fetch('/api/documents/upload', {
+      const response = await fetch(`${API_BASE_URL || ''}/api/documents/upload`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -97,7 +98,7 @@ const DocumentVault = () => {
 
     try {
       const token = localStorage.getItem('auth_token');
-      const response = await fetch(`/api/documents/${id}`, {
+      const response = await fetch(`${API_BASE_URL || ''}/api/documents/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -116,7 +117,7 @@ const DocumentVault = () => {
   const handleDownload = async (id: number, filename: string) => {
     try {
       const token = localStorage.getItem('auth_token');
-      const response = await fetch(`/api/documents/${id}`, {
+      const response = await fetch(`${API_BASE_URL || ''}/api/documents/${id}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
