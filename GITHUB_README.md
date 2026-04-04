@@ -477,11 +477,10 @@ Refer to `backend/app.py` for complete endpoint specifications, request/response
 ### 1. Intelligent Chatbot
 
 **How it works:**
-- Reads campus knowledge base (`cleaned_knowledge.txt`)
-- Uses Xenova transformers for browser-side embeddings
-- Performs semantic search with cosine similarity
-- Sends context + query to Google Gemini API
-- Returns intelligent, context-aware responses
+- Uses internal campus and platform context to generate answers
+- Supports speech input and text-based questions
+- Sends requests to Google Gemini API for intelligent responses
+- Returns concise, campus-aware answers
 
 **Features:**
 - Natural language understanding
@@ -904,9 +903,12 @@ furnished to do so, subject to the following conditions:
 ### Getting Help
 
 - 📖 **Documentation**: Check the [docs](./docs) folder
-- 🐛 **Issues**: Report bugs on [GitHub Issues](https://github.com/yourusername/campus-companion/issues)
-- 💬 **Discussions**: Join [GitHub Discussions](https://github.com/yourusername/campus-companion/discussions)
-- 📧 **Email**: support@campuscompanion.dev
+- 🐛 **Issues**: Report bugs on [GitHub Issues](https://github.com/VirexEngine/campus-companion/issues)
+- 💬 **Discussions**: Join [GitHub Discussions](https://github.com/VirexEngine/campus-companion/discussions)
+- 📧 **Email**: pratyushhapii@gmail.com
+
+### Maintainer
+- **VirexEngine** — pratyushhapii@gmail.com
 
 ### Feature Requests
 
