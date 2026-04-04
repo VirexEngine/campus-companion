@@ -22,7 +22,6 @@ import AppLayout from "./components/layout/AppLayout";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import DocumentVault from "./pages/DocumentVault";
 import NotFound from "./pages/NotFound";
-import GNGroupLanding from "./pages/GNGroupLanding";
 
 const queryClient = new QueryClient();
 
@@ -33,7 +32,6 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<GNGroupLanding />} />
           <Route path="/login" element={<LoginPage />} />
           <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
             <Route path="/dashboard" element={<DashboardPage />} />
