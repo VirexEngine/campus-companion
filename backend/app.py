@@ -50,7 +50,11 @@ api_key = os.environ.get('GEMINI_API_KEY')
 if api_key:
     genai.configure(api_key=api_key)
 
-UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uploads')
+if os.environ.get('VERCEL') == '1':
+    UPLOAD_FOLDER = '/tmp/uploads'
+else:
+    UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uploads')
+
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
