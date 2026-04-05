@@ -20,7 +20,7 @@ from datetime import datetime
 import google.generativeai as genai
 
 app = Flask(__name__)
-app.config['JWT_SECRET_KEY'] = 'super-secret-key-change-in-prod'
+app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'super-secret-key-change-in-prod')
 # ✅ Robust CORS configuration for deployment
 CORS(app, resources={
     r"/api/*": {
@@ -1373,6 +1373,12 @@ def chat_proxy():
         final_prompt = system_context or "Answer the user's questions clearly and concisely."
 
     try:
+        # Re-configure inside the route to ensure Vercel picks up late environment variables
+        api_key = os.getenv("GEMINI_API_KEY")
+        if not api_key:
+             return jsonify({"choices": [{"message": {"content": "AI service is offline. Please check GEMINI_API_KEY."}}]}), 200
+             
+        genai.configure(api_key=api_key)
         model = genai.GenerativeModel('gemini-1.5-flash')
         response = model.generate_content(
             final_prompt,
