@@ -25,6 +25,7 @@ app.config['JWT_SECRET_KEY'] = 'super-secret-key-change-in-prod'
 CORS(app, resources={
     r"/api/*": {
         "origins": [
+            "https://campus-companion-two.vercel.app", 
             "https://campus-companion-pi.vercel.app", 
             "http://localhost:8080",
             "http://localhost:8081",
@@ -78,7 +79,12 @@ def migrate_documents():
     conn.close()
 
 def get_db_connection():
-    db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'database.db')
+    # Vercel functions have a read-only filesystem, except for /tmp
+    if os.environ.get('VERCEL') == '1':
+        db_path = '/tmp/database.db'
+    else:
+        db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'database.db')
+    
     conn = sqlite3.connect(db_path)
     conn.execute('PRAGMA foreign_keys = ON')
     conn.row_factory = sqlite3.Row
