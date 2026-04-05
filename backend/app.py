@@ -26,9 +26,10 @@ CORS(app, resources={
     r"/api/*": {
         "origins": [
             "https://campus-companion-pi.vercel.app", 
-            "https://campus-companion-kzl2.onrender.com",
             "http://localhost:8080",
-            "http://127.0.0.1:8080"
+            "http://localhost:8081",
+            "http://127.0.0.1:8080",
+            "http://localhost:10000"
         ],
         "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
         "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"],
@@ -77,7 +78,8 @@ def migrate_documents():
     conn.close()
 
 def get_db_connection():
-    conn = sqlite3.connect('database.db')
+    db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'database.db')
+    conn = sqlite3.connect(db_path)
     conn.execute('PRAGMA foreign_keys = ON')
     conn.row_factory = sqlite3.Row
     return conn

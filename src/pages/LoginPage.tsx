@@ -374,7 +374,7 @@ export default function LoginPage() {
                       {[
                         { label: 'Student', uid: 'STU-1001', pass: 'student123' },
                         { label: 'Teacher', uid: 'TCH-2001', pass: 'teacher123' },
-                        { label: 'Admin', uid: 'ADM-0001', pass: '1234' },
+                        { label: 'Admin', uid: 'ADM-0001', pass: 'admin123' },
                       ].map((demo) => (
                         <button
                           key={demo.label}
