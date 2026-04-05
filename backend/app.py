@@ -1389,7 +1389,7 @@ def chat_proxy():
     except Exception as e:
         import traceback
         traceback.print_exc()
-        return jsonify({"choices": [{"message": {"content": "Sorry, I couldn't connect to the AI service right now. Please check your GEMINI_API_KEY settings in Vercel."}}]}), 200
+        return jsonify({"choices": [{"message": {"content": f"AI Error: {str(e)}"}}]}), 200
 
 @app.route('/api/gn-chat', methods=['POST'])
 def gn_chat_proxy():
