@@ -20,8 +20,11 @@ export default function FaceCapture({ onCapture, label = "Face ID" }: FaceCaptur
       console.log('FACE-API: Starting model load from /models (OPTIMIZED)');
       setError(null);
       try {
-        const MODEL_URL = '/models';
-        
+        const base = import.meta.env.BASE_URL || '/';
+        const normalizedBase = base.endsWith('/') ? base : `${base}/`;
+        const MODEL_URL = `${window.location.origin}${normalizedBase}models`;
+
+        console.log('FACE-API: MODEL_URL =', MODEL_URL);
         console.log('FACE-API: Loading tinyFaceDetector...');
         await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
         console.log('FACE-API: tinyFaceDetector loaded');
@@ -51,10 +54,11 @@ export default function FaceCapture({ onCapture, label = "Face ID" }: FaceCaptur
       const stream = await navigator.mediaDevices.getUserMedia({ video: {} });
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
+        await videoRef.current.play();
       }
     } catch (err) {
       console.error('Error accessing webcam:', err);
-      setError('Camera access denied or not found.');
+      setError(`Camera access denied or not found. ${err instanceof Error ? err.message : ''}`);
       setIsCapturing(false);
     }
   };

@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, make_response
 import os
 import uuid
 from werkzeug.utils import secure_filename
@@ -21,37 +21,21 @@ import google.generativeai as genai
 
 app = Flask(__name__)
 app.config['JWT_SECRET_KEY'] = 'super-secret-key-change-in-prod'
-
-# ✅ Proper CORS config
-CORS(app, supports_credentials=True)
-
-# ✅ Handle preflight manually (CRITICAL)
-@app.before_request
-def handle_preflight():
-    if request.method == "OPTIONS":
-        response = app.make_default_options_response()
-        headers = response.headers
-        origin = request.headers.get("Origin", "*")
-
-        headers["Access-Control-Allow-Origin"] = origin
-        headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, PATCH, DELETE, OPTIONS"
-        headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
-        if origin != "*":
-            headers["Access-Control-Allow-Credentials"] = "true"
-        return response
-
-# ✅ Force headers on every response
-@app.after_request
-def after_request(response):
-    origin = request.headers.get("Origin")
-    if origin:
-        response.headers["Access-Control-Allow-Origin"] = origin
-        response.headers["Access-Control-Allow-Credentials"] = "true"
-    else:
-        response.headers["Access-Control-Allow-Origin"] = "*"
-    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
-    response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, PATCH, DELETE, OPTIONS"
-    return response
+# ✅ Robust CORS configuration for deployment
+CORS(app, resources={
+    r"/api/*": {
+        "origins": [
+            "https://campus-companion-pi.vercel.app", 
+            "https://campus-companion-kzl2.onrender.com",
+            "http://localhost:8080",
+            "http://127.0.0.1:8080"
+        ],
+        "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"],
+        "supports_credentials": True,
+        "expose_headers": ["Content-Type", "Authorization"]
+    }
+}, supports_credentials=True)
 
 jwt = JWTManager(app)
 

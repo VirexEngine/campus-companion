@@ -1,13 +1,12 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore, UserRole } from '@/store/authStore';
+import { API_BASE_URL } from '@/lib/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { GraduationCap, Eye, EyeOff, ArrowRight, UserPlus, LogIn, Camera, ShieldCheck, User } from 'lucide-react';
 import { toast } from 'sonner';
 import FaceCapture from '@/components/auth/FaceCapture';
 import * as faceapi from 'face-api.js';
-
-const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 export default function LoginPage() {
   const [isLogin, setIsLogin] = useState(true);

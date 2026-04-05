@@ -1,4 +1,6 @@
-export const API_BASE_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, '') || 'https://campus-companion-kzl2.onrender.com';
+const envUrl = import.meta.env.VITE_API_URL?.replace(/\/$/, '');
+const runtimeUrl = typeof window !== 'undefined' ? (window as any).__API_BASE_URL__?.replace(/\/$/, '') : undefined;
+export const API_BASE_URL = envUrl || runtimeUrl || 'https://campus-companion-kzl2.onrender.com';
 
 export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
   const token = localStorage.getItem('auth_token');
