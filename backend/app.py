@@ -202,6 +202,39 @@ def init_db_if_needed():
             FOREIGN KEY(quiz_id) REFERENCES quizzes(id) ON DELETE CASCADE
         );
     """)
+    
+    # Check if we need to seed initial data (especially for Vercel /tmp DB)
+    check_user = cursor.execute("SELECT 1 FROM users LIMIT 1").fetchone()
+    if not check_user:
+        print("SEEDING INITIAL DATA...")
+        # Add Admin
+        cursor.execute("INSERT INTO users (user_id, name, email, department, password, role) VALUES (?, ?, ?, ?, ?, ?)",
+                    ('ADM-0001', 'Pratyush', 'admin@college.edu', 'Management', generate_password_hash('admin123'), 'admin'))
+        
+        # Add Teacher
+        cursor.execute("INSERT INTO users (user_id, name, email, department, password, role) VALUES (?, ?, ?, ?, ?, ?)",
+                    ('TCH-2001', 'Dr. Priya Nair', 'teacher@college.edu', 'DS', generate_password_hash('teacher123'), 'teacher'))
+        
+        # Add Students
+        students = [
+            ('STU-1001', 'Arjun Sharma', 'student@college.edu', 'DS', generate_password_hash('student123')),
+            ('STU-1002', 'Sneha Patel', 'sneha@college.edu', 'DS', generate_password_hash('student123')),
+        ]
+        for sid, sname, semail, sdept, spwd in students:
+            cursor.execute("INSERT INTO users (user_id, name, email, department, password, role) VALUES (?, ?, ?, ?, ?, ?)",
+                        (sid, sname, semail, sdept, spwd, 'student'))
+            
+        # Add default subjects and timetable for the seeded student
+        subjects = ['Maths', 'BEE', 'EVS', 'PPS', 'Physics']
+        for sid in ['STU-1001', 'TCH-2001']:
+            for subj in subjects:
+                cursor.execute("INSERT INTO user_subjects (user_id, subject) VALUES (?, ?)", (sid, subj))
+        
+        # Simple Timetable for STU-1001
+        for subj, day in zip(subjects, ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']):
+             cursor.execute("INSERT INTO timetable (user_id, subject, day, start_time, end_time, teacher, room) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                        ('STU-1001', subj, day, '09:00', '10:00', 'Prof. Verma', 'B-101'))
+
     conn.commit()
     conn.close()
 
