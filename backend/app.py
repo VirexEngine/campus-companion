@@ -1396,7 +1396,7 @@ def chat_proxy():
         if "400" in error_str:
             safe_msg = "Oops! The AI key appears invalid or the request was rejected. Check GEMINI_API_KEY in backend/.env."
             return jsonify({"choices": [{"message": {"content": safe_msg}}]}), 200
-        return jsonify({"choices": [{"message": {"content": "Sorry, I couldn't connect to the AI service right now. Please check GEMINI_API_KEY or try again later."}}]}), 200
+        return jsonify({"choices": [{"message": {"content": f"AI Error: {str(e)}"}}]}), 200
 
 @app.route('/api/gn-chat', methods=['POST'])
 def gn_chat_proxy():
