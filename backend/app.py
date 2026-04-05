@@ -1382,21 +1382,14 @@ def chat_proxy():
         model = genai.GenerativeModel('gemini-1.5-flash')
         response = model.generate_content(
             final_prompt,
-            generation_config=genai.types.GenerationConfig(max_output_tokens=200)
+            generation_config=genai.types.GenerationConfig(max_output_tokens=500)
         )
         output_text = response.text.strip()
         return jsonify({"choices": [{"message": {"content": output_text}}]}), 200
     except Exception as e:
         import traceback
         traceback.print_exc()
-        error_str = str(e)
-        if "429" in error_str:
-            safe_msg = "🚦 Rate limit reached. Please wait a few moments and ask again."
-            return jsonify({"choices": [{"message": {"content": safe_msg}}]}), 200
-        if "400" in error_str:
-            safe_msg = "Oops! The AI key appears invalid or the request was rejected. Check GEMINI_API_KEY in backend/.env."
-            return jsonify({"choices": [{"message": {"content": safe_msg}}]}), 200
-        return jsonify({"choices": [{"message": {"content": f"AI Error: {str(e)}"}}]}), 200
+        return jsonify({"choices": [{"message": {"content": "Sorry, I couldn't connect to the AI service right now. Please check your GEMINI_API_KEY settings in Vercel."}}]}), 200
 
 @app.route('/api/gn-chat', methods=['POST'])
 def gn_chat_proxy():
