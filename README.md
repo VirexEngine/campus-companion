@@ -157,7 +157,7 @@ Built as a flexible, multi-institution solution, Campus Companion can be adapted
 #### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/campus-companion.git
+git clone https://github.com/VirexEngine/campus-companion.git
 cd campus-companion
 ```
 
@@ -222,9 +222,6 @@ Admin Account:
 - Password: admin123
 - Role: Admin
 ```
-
-> ⚠️ **Important**: Change these credentials in production!
-
 ---
 
 ## 🏗️ Architecture
