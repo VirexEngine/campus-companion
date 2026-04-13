@@ -1,6 +1,6 @@
 # 🎓 Campus Companion
 
-> An AI-powered educational management platform designed for modern campuses, combining intelligent student information management, academic tracking, and AI-assisted learning tools.
+> An AI-powered educational management platform designed for modern campuses, combining student information management, academic tracking, and AI-assisted learning tools.
 
 [![React](https://img.shields.io/badge/React-18.3-61dafb?style=flat-square&logo=react)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178c6?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
